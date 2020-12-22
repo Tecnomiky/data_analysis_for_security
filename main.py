@@ -6,35 +6,41 @@ import sklearn.decomposition
 import sklearn.ensemble
 
 
-def load(file_csv):
+def loadData(file_csv):
+    """Read the csv file and return pandas dataset"""
     return pandas.read_csv(file_csv)
 
 
-def describe_columns(dataset):
-    for (columnName, columnData) in dataset.iteritems():
-        print(columnName)
-        df = pandas.Series(columnData)
-        print(df.describe())
-        print()
-
-
-def plot(data, type='scatter'):
+def preElaboration(data, list):
+    """Print stats for attributes of dataset in list"""
     for (columnName, columnData) in data.iteritems():
-        if type == 'scatter':
-            data.plot.scatter(y='classification', x=columnName)
-        elif type == 'box':
-            data.boxplot(column=columnName, by='classification')
-        #plt.show()
+        if columnName in list:
+            print(columnName)
+            df = pandas.Series(columnData)
+            print(df.describe())
+            print()
 
-        if columnName == "total_fpktl":
-            plt.ylim(0, 600)
-        elif columnName == "max_flowpktl":
-            plt.ylim(0, 500)
-        elif columnName == "mean_flowpktl":
-            plt.ylim(0, 450)
 
-        plt.savefig(type+'_'+columnName+'.png')
-        plt.close()
+def preElaborationPlot(data, indipendentList, labelClass, type='scatter'):
+    """Save plot of type specified for attributes in indipendentList in relation to labelClass  """
+    for (columnName, columnData) in data.iteritems():
+        if columnName in indipendentList:
+            if type == 'scatter':
+                data.plot.scatter(y=labelClass, x=columnName)
+            elif type == 'box':
+                data.boxplot(column=columnName, by=labelClass)
+            #plt.show()
+
+            # Focus on range important
+            if columnName == "total_fpktl":
+                plt.ylim(0, 600)
+            elif columnName == "max_flowpktl":
+                plt.ylim(0, 500)
+            elif columnName == "mean_flowpktl":
+                plt.ylim(0, 450)
+
+            plt.savefig(type+"Plot\\"+type+'_'+columnName+'.png')
+            plt.close()
 
 
 def feature_evaluation(dataset, print_enable=False):
@@ -156,7 +162,7 @@ def evaluateCV(X_Train, X_Test, Y_Train, Y_Test, number_features="sqrt", number_
 
 
 file = 'Train_OneClsNumeric.csv'
-dataset = load(file)
+dataset = loadData(file)
 # Print info
 # print(dataset.shape)
 # print(dataset.head())
