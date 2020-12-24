@@ -29,7 +29,7 @@ def preElaborationPlot(data, indipendentList, labelClass, type='scatter'):
                 data.plot.scatter(y=labelClass, x=columnName)
             elif type == 'box':
                 data.boxplot(column=columnName, by=labelClass)
-            #plt.show()
+            # plt.show()
 
             # Focus on range important
             if columnName == "total_fpktl":
@@ -39,7 +39,7 @@ def preElaborationPlot(data, indipendentList, labelClass, type='scatter'):
             elif columnName == "mean_flowpktl":
                 plt.ylim(0, 450)
 
-            plt.savefig(type+"Plot\\"+type+'_'+columnName+'.png')
+            plt.savefig(type + "Plot\\" + type + '_' + columnName + '.png')
             plt.close()
 
 
@@ -48,7 +48,7 @@ def PCA(data_without_class, n_componets):
     pca = sklearn.decomposition.PCA(n_components=n_componets)
     pca.fit(data_without_class)
     transform = pca.transform(data_without_class)
-    #new_dataset = np.hstack((transform, only_class))
+    # new_dataset = np.hstack((transform, only_class))
 
     return transform, pca
 
@@ -56,15 +56,15 @@ def PCA(data_without_class, n_componets):
 def apply_PCA(data_without_class, pca):
     """Trasform dataset with PCA"""
     transform = pca.transform(data_without_class)
-    #new_dataset = np.hstack((transform, only_class))
+    # new_dataset = np.hstack((transform, only_class))
 
     return transform
 
 
 def stratified_cross_validation(data, n_splits, random=None):
     """Stratified Sampling (Selezione esempi) K-fold"""
-    X=data.iloc[:, :-1]
-    Y=data['classification']
+    X = data.iloc[:, :-1]
+    Y = data['classification']
     scv = sklearn.model_selection.StratifiedKFold(n_splits, shuffle=True, random_state=random)
 
     X_train = []
@@ -79,6 +79,7 @@ def stratified_cross_validation(data, n_splits, random=None):
 
     return X_train, X_test, Y_train, Y_test
 
+
 def evaluateCV(X_Train, X_Test, Y_Train, Y_Test, number_features="sqrt", number_samples=0.5, number_trees=25):
     """Evaluate Strafied Sampling"""
     number_folds = len(X_Train)
@@ -86,7 +87,8 @@ def evaluateCV(X_Train, X_Test, Y_Train, Y_Test, number_features="sqrt", number_
     avgTest = [0] * 5
 
     for i in range(0, number_folds):
-        rf = random_forest_learner(X_Train[i], Y_Train[i], number_features=number_features, number_samples=number_samples, number_trees=number_trees)
+        rf = random_forest_learner(X_Train[i], Y_Train[i], number_features=number_features,
+                                   number_samples=number_samples, number_trees=number_trees)
         scoreTrain = evaluate_random_forest(X_Train[i], Y_Train[i], rf)
         for j in range(0, len(avgTrain)):
             avgTrain[j] += scoreTrain[j]
@@ -95,19 +97,22 @@ def evaluateCV(X_Train, X_Test, Y_Train, Y_Test, number_features="sqrt", number_
             avgTest[j] += scoreTest[j]
 
     for j in range(0, len(avgTrain)):
-        avgTrain[j] = avgTrain[j]/number_folds
+        avgTrain[j] = avgTrain[j] / number_folds
 
     for j in range(0, len(avgTest)):
-        avgTest[j] = avgTest[j]/number_folds
+        avgTest[j] = avgTest[j] / number_folds
 
     return avgTrain, avgTest
 
+
 def random_forest_learner(X, Y, number_features="sqrt", number_samples=0.5, number_trees=25):
     """Calculate a Random Forest"""
-    rfc = sklearn.ensemble.RandomForestClassifier(max_features=number_features, max_samples=number_samples, n_estimators=number_trees, min_samples_split=0.05)
+    rfc = sklearn.ensemble.RandomForestClassifier(max_features=number_features, max_samples=number_samples,
+                                                  n_estimators=number_trees, min_samples_split=0.05)
     rfc.fit(X, Y)
 
     return rfc
+
 
 def evaluate_random_forest(X, Y_true, rfc):
     """Evaluate a Random Forest"""
@@ -127,6 +132,14 @@ def evaluate_random_forest(X, Y_true, rfc):
     metrics.append(f1_score(Y_true, y_pred))  # fscore
 
     return metrics
+
+
+def knn_learner(X, Y):
+    """Calculate a KNN classifier"""
+    knn_classifier = sklearn.neighbors.KNeighborsClassifier()
+    knn_classifier = knn_classifier.fit(X, Y)
+
+    return knn_classifier
 
 
 def feature_evaluation(dataset, print_enable=False):
@@ -160,12 +173,8 @@ def topIndipendentAttributeSelect(features_selected, n):
     return topIndipendentAttribute
 
 
-
-
 file = 'Train_OneClsNumeric.csv'
 dataset = loadData(file)
-
-#dataset_PCA, pca = PCA(dataset, 10)
 
 X_train, X_test, Y_train, Y_test = stratified_cross_validation(dataset, 5, 50)
 
@@ -186,9 +195,9 @@ for randomization in randomizations:
                 f_score_test_best_configuration_dataset_original = f_score_test
                 best_configuration_dataset_original = [randomization, number_samples, number_of_tree]
 
-print("Best configuration dataset original: Randomization: " + best_configuration_dataset_original[0] + " Number of samples: " + str(best_configuration_dataset_original[1]) +
+print("Best configuration dataset original: Randomization: " + best_configuration_dataset_original[
+    0] + " Number of samples: " + str(best_configuration_dataset_original[1]) +
       " Number of trees: " + str(best_configuration_dataset_original[2]))
-
 
 X_train_pca = [0] * len(X_train)
 X_test_pca = [0] * len(X_train)
@@ -212,14 +221,30 @@ for randomization in randomizations:
                 f_score_test_best_configuration_dataset_pca = f_score_test
                 best_configuration_dataset_pca = [randomization, number_samples, number_of_tree]
 
-print("Best configuration dataset PCA: Randomization: " + best_configuration_dataset_pca[0] + " Number of samples: " + str(best_configuration_dataset_pca[1]) +
+print("Best configuration dataset PCA: Randomization: " + best_configuration_dataset_pca[0] +
+      " Number of samples: " + str(best_configuration_dataset_pca[1]) +
       " Number of trees: " + str(best_configuration_dataset_pca[2]))
 
+X_original = dataset.iloc[:, :-1]
+Y_original = dataset['classification']
+random_forest_config_a = random_forest_learner(X_original, Y_original, best_configuration_dataset_original[0],
+                                               best_configuration_dataset_original[1],
+                                               best_configuration_dataset_original[2])
+random_forest_config_b = random_forest_learner(X_original, Y_original, best_configuration_dataset_pca[0],
+                                               best_configuration_dataset_pca[1],
+                                               best_configuration_dataset_pca[2])
 
-X_original=dataset.iloc[:, :-1]
-Y_original=dataset['classification']
-random_forest_configuration_a = random_forest_learner(X_original, Y_original, best_configuration_dataset_original[0], best_configuration_dataset_original[1], best_configuration_dataset_original[2])
-random_forest_configuration_b = random_forest_learner(X_original, Y_original, best_configuration_dataset_pca[0], best_configuration_dataset_pca[1], best_configuration_dataset_pca[2])
+Y_predict_config_a = [0] * len(Y_original)
+Y_predict_config_b = [0] * len(Y_original)
+for i in range(0, len(Y_original)):
+    Y_predict_config_a[i] = random_forest_config_a.predict([X_original.iloc[i].array])
+    Y_predict_config_b[i] = random_forest_config_b.predict([X_original.iloc[i].array])
+
+dataset_knn = pandas.DataFrame(list(zip(Y_predict_config_a, Y_predict_config_b)))
+
+knn = knn_learner(dataset_knn, Y_original)
+
+print()
 
 # Print info
 # print(dataset.shape)
@@ -227,30 +252,28 @@ random_forest_configuration_b = random_forest_learner(X_original, Y_original, be
 # print(dataset.columns)
 
 # Print info of each columns
-#describe_columns(dataset)
+# describe_columns(dataset)
 
-#View plot of each column
-#plot(dataset, type='box')
+# View plot of each column
+# plot(dataset, type='box')
 
 
 ## Select Att with mult info
-#feature_selcted = feature_evaluation(dataset, False)
+# feature_selcted = feature_evaluation(dataset, False)
 
-#top_attribute = topIndipendentAttributeSelect(feature_selcted, 10)
+# top_attribute = topIndipendentAttributeSelect(feature_selcted, 10)
 
-#datasetWithTopAtributes = dataset.loc[:, top_attribute.keys()]
+# datasetWithTopAtributes = dataset.loc[:, top_attribute.keys()]
 
-#print(datasetWithTopAtributes)
+# print(datasetWithTopAtributes)
 
-#avg_train, avg_test = evaluateCV(X_train, X_test, Y_train, Y_test, number_features="sqrt", number_samples=0.9, number_trees=30)
+# avg_train, avg_test = evaluateCV(X_train, X_test, Y_train, Y_test, number_features="sqrt", number_samples=0.9, number_trees=30)
 
-#print("AVG Train")
-#print(avg_train)
-#print("AVG Test")
-#print(avg_test)
+# print("AVG Train")
+# print(avg_train)
+# print("AVG Test")
+# print(avg_test)
 
 
-
-#for i in range(0, len(X_train)):
+# for i in range(0, len(X_train)):
 #    rfl = random_forest_learner(X_train[i], Y_train[i], number_features="sqrt", number_samples=0.9, number_trees=30)
-
