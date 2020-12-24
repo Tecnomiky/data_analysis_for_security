@@ -215,6 +215,12 @@ for randomization in randomizations:
 print("Best configuration dataset PCA: Randomization: " + best_configuration_dataset_pca[0] + " Number of samples: " + str(best_configuration_dataset_pca[1]) +
       " Number of trees: " + str(best_configuration_dataset_pca[2]))
 
+
+X_original=dataset.iloc[:, :-1]
+Y_original=dataset['classification']
+random_forest_configuration_a = random_forest_learner(X_original, Y_original, best_configuration_dataset_original[0], best_configuration_dataset_original[1], best_configuration_dataset_original[2])
+random_forest_configuration_b = random_forest_learner(X_original, Y_original, best_configuration_dataset_pca[0], best_configuration_dataset_pca[1], best_configuration_dataset_pca[2])
+
 # Print info
 # print(dataset.shape)
 # print(dataset.head())
