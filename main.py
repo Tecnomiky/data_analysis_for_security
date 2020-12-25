@@ -4,6 +4,11 @@ import numpy as np
 import sklearn.feature_selection
 import sklearn.decomposition
 import sklearn.ensemble
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import balanced_accuracy_score
 
 
 def loadData(file_csv):
@@ -118,12 +123,6 @@ def evaluate_random_forest(X, Y_true, rfc):
     """Evaluate a Random Forest"""
     y_pred = rfc.predict(X)
 
-    from sklearn.metrics import accuracy_score
-    from sklearn.metrics import precision_score
-    from sklearn.metrics import recall_score
-    from sklearn.metrics import f1_score
-    from sklearn.metrics import balanced_accuracy_score
-
     metrics = []
     metrics.append(accuracy_score(Y_true, y_pred))  # oa
     metrics.append(balanced_accuracy_score(Y_true, y_pred))  # balanced accuracy
@@ -140,6 +139,19 @@ def knn_learner(X, Y):
     knn_classifier = knn_classifier.fit(X, Y)
 
     return knn_classifier
+
+def evaluate_knn_learner(X, Y_true, knn):
+    """Evaluate a KNN learner"""
+    y_pred = knn.predict(X)
+
+    metrics = []
+    metrics.append(accuracy_score(Y_true, y_pred))  # oa
+    metrics.append(balanced_accuracy_score(Y_true, y_pred))  # balanced accuracy
+    metrics.append(precision_score(Y_true, y_pred))  # precision
+    metrics.append(recall_score(Y_true, y_pred))  # recall
+    metrics.append(f1_score(Y_true, y_pred))  # fscore
+
+    return metrics
 
 
 def feature_evaluation(dataset, print_enable=False):
@@ -243,6 +255,26 @@ for i in range(0, len(Y_original)):
 dataset_knn = pandas.DataFrame(list(zip(Y_predict_config_a, Y_predict_config_b)))
 
 knn = knn_learner(dataset_knn, Y_original)
+
+trainset = loadData("Test_OneClsNumeric.csv")
+X_testset = dataset.iloc[:, :-1]
+Y_testset = dataset['classification']
+
+metrics_testset_config_a = evaluate_random_forest(X_testset, Y_testset, random_forest_config_a)
+metrics_testset_config_b = evaluate_random_forest(X_testset, Y_testset, random_forest_config_b)
+print(metrics_testset_config_a)
+print(metrics_testset_config_b)
+
+Y_testset_predict_config_a = [0] * len(Y_testset)
+Y_testset_predict_config_b = [0] * len(Y_testset)
+for i in range(0, len(Y_original)):
+    Y_testset_predict_config_a[i] = random_forest_config_a.predict([X_testset.iloc[i].array])
+    Y_testset_predict_config_b[i] = random_forest_config_b.predict([X_testset.iloc[i].array])
+
+trainset_knn = pandas.DataFrame(list(zip(Y_testset_predict_config_a, Y_testset_predict_config_b)))
+
+metrics_testset_knn = evaluate_knn_learner(trainset_knn, Y_testset, knn)
+print(metrics_testset_knn)
 
 print()
 
